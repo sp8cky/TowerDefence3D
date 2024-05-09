@@ -5,8 +5,7 @@ using UnityEngine.AI;
 
 public class Spawner : MonoBehaviour {
     public GameObject enemyPrefab; // Prefab für die zu spawnende Kugel
-    public float spawnInterval = 2f; // Intervall zwischen den Spawns
-    public float enemySpeed = 5f; // Geschwindigkeit der Kugel
+    public float spawnInterval = 10f; // Intervall zwischen den Spawns
 
     IEnumerator Start() {
         while (true) {
@@ -16,13 +15,7 @@ public class Spawner : MonoBehaviour {
     }
 
     void SpawnSphere() {
-        GameObject sphere = Instantiate(enemyPrefab, transform.position, Quaternion.identity);
-        Rigidbody rigidbody = sphere.GetComponent<Rigidbody>();
-        if (rigidbody != null) {
-            rigidbody.velocity = transform.forward * enemySpeed;
-        } else {
-            Debug.LogError("Rigidbody fehlt auf der Sphere.");
-        }
+        Instantiate(enemyPrefab, transform.position, Quaternion.identity);
     }
 
 }

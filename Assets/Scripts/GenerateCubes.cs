@@ -2,13 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-
 public class GenerateCubes : MonoBehaviour {
     public GameObject cubePrefab; // Prefab for the cubes
     private Vector2 gridSize = new Vector2(50, 50); // Grid size
     public float height = 0.1f; // Height of the cubes
     public Material pathMaterial; // Material for cubes on the path
     public Material transparentMaterial; // Material for cubes not on the path
+    public Transform[] waypoints; // Waypoints for the path
 
     private GameObject spawnObject;
     private GameObject baseObject;
@@ -19,7 +19,8 @@ public class GenerateCubes : MonoBehaviour {
 
         if (spawnObject != null && baseObject != null) {
             GenerateCubesGrid();
-            GeneratePath();
+            AddSpawnAndBaseAsWaypoints();
+            ColorPathCubes();
         } else {
             Debug.LogError("Spawn or Base object not found.");
         }
@@ -41,57 +42,49 @@ public class GenerateCubes : MonoBehaviour {
                 cube.transform.parent = rowParent.transform;
             }
         }
-        Debug.Log("Cubes erfolgreich erzeugt");
+        Debug.Log("Cubes successfully generated");
     }
 
-    void GeneratePath() {
-        Vector3 spawnPosition = spawnObject.transform.position;
-        Vector3 basePosition = baseObject.transform.position;
+    void AddSpawnAndBaseAsWaypoints() {
+        List<Transform> updatedWaypoints = new List<Transform>(waypoints);
+        updatedWaypoints.Insert(0, spawnObject.transform);
+        updatedWaypoints.Add(baseObject.transform);
+        waypoints = updatedWaypoints.ToArray();
+    }
 
-        // Check if the spawn and base positions are on the same row or column
-        if (Mathf.Approximately(spawnPosition.x, basePosition.x) || Mathf.Approximately(spawnPosition.z, basePosition.z)) {
-            float startX = Mathf.Min(spawnPosition.x, basePosition.x);
-            float endX = Mathf.Max(spawnPosition.x, basePosition.x);
-            float startZ = Mathf.Min(spawnPosition.z, basePosition.z);
-            float endZ = Mathf.Max(spawnPosition.z, basePosition.z);
+    public void ColorPathCubes() {
+        for (int i = 0; i < waypoints.Length - 1; i++) {
+            Transform currentWaypoint = waypoints[i];
+            Transform nextWaypoint = waypoints[i + 1];
 
-            // Loop through each cube and check if it lies on the path
-            for (float x = startX; x <= endX; x++) {
-                for (float z = startZ; z <= endZ; z++){
-                    if (IsOnPath(x, z)) {
-                        // Calculate the name of the cube
-                        string cubeName = "Cube " + x.ToString("00") + "-" + z.ToString("00");
+            Vector3 roundedPosition = RoundPosition(currentWaypoint.position);
+            ColorCubeAtPosition(roundedPosition);
 
-                        // Check if the cube exists
-                        GameObject cube = GameObject.Find(cubeName);
-                        if (cube != null) {
-                            cube.tag = "Path";
-                            // Set the material
-                            Renderer renderer = cube.GetComponent<Renderer>();
-                            if (renderer != null) renderer.material = pathMaterial;
-                        }
-                    }
-                }
+            Vector3 direction = nextWaypoint.position - currentWaypoint.position;
+            float step = 1.0f / Mathf.Max(Mathf.Abs(direction.x), Mathf.Abs(direction.z));
+
+            for (float t = 0; t <= 1; t += step) {
+                Vector3 positionOnLine = Vector3.Lerp(currentWaypoint.position, nextWaypoint.position, t);
+                Vector3 roundedPositionOnLine = RoundPosition(positionOnLine);
+                ColorCubeAtPosition(roundedPositionOnLine);
             }
-        } else {
-            Debug.LogError("Spawn and Base objects are not aligned horizontally or vertically.");
         }
     }
 
-    bool IsOnPath(float x, float z) {
-        Vector3 spawnPosition = spawnObject.transform.position;
-        Vector3 basePosition = baseObject.transform.position;
+    private Vector3 RoundPosition(Vector3 position) {
+        return new Vector3(Mathf.Round(position.x + 0.5f), position.y, Mathf.Round(position.z + 0.5f));
+    }
 
-        // Check if the spawn and base positions are on the same row or column
-        if (Mathf.Approximately(spawnPosition.x, basePosition.x)) {
-            // Check if the cube is between the spawn and base positions on the z-axis
-            return Mathf.Min(spawnPosition.z, basePosition.z) <= z && z <= Mathf.Max(spawnPosition.z, basePosition.z);
-        } else if (Mathf.Approximately(spawnPosition.z, basePosition.z)) {
-            // Check if the cube is between the spawn and base positions on the x-axis
-            return Mathf.Min(spawnPosition.x, basePosition.x) <= x && x <= Mathf.Max(spawnPosition.x, basePosition.x);
-        } else {
-            Debug.LogError("Spawn and Base objects are not aligned horizontally or vertically.");
-            return false;
+    private void ColorCubeAtPosition(Vector3 position) {
+        // Check if the position is within the grid bounds
+        if (position.x >= 0 && position.x < gridSize.x && position.z >= 0 && position.z < gridSize.y) {
+            string cubeName = "Cube " + position.x.ToString("00") + "-" + position.z.ToString("00");
+            GameObject cube = GameObject.Find(cubeName);
+            if (cube != null) {
+                cube.tag = "Path";
+                Renderer renderer = cube.GetComponent<Renderer>();
+                if (renderer != null) renderer.material = pathMaterial;
+            }
         }
     }
 }
