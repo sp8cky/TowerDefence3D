@@ -9,26 +9,9 @@ public class GenerateCubes : MonoBehaviour {
     public Material pathMaterial; // Material for cubes on the path
     public Material transparentMaterial; // Material for cubes not on the path
     public Transform[] waypoints; // Waypoints for the path, included in scene
-
-    private Vector3[] pathPositions; // Array to store the positions of spawn, waypoints, and base
-
-
     private GameObject spawnObject;
     private GameObject baseObject;
-    
-    void Start() {
-        spawnObject = GameObject.FindGameObjectWithTag("Spawn");
-        baseObject = GameObject.FindGameObjectWithTag("Base");
-        
-        if (spawnObject != null && baseObject != null) {
-            GenerateCubesGrid();
-            AddSpawnAndBaseAsWaypoints();
-            CalculatePathCubes();
-        } else {
-            Debug.LogError("Spawn or Base object not found.");
-        }
-    }
-    /*
+
     void Start() {
         spawnObject = GameObject.FindGameObjectWithTag("Spawn");
         baseObject = GameObject.FindGameObjectWithTag("Base");
@@ -37,19 +20,20 @@ public class GenerateCubes : MonoBehaviour {
             GenerateCubesGrid();
 
             // Definiere manuelle Positionen
-            Vector3[] manualPositions = new Vector3[2];
+            Vector3[] manualPositions = new Vector3[3];
             manualPositions[0] = new Vector3(7.5f, 1.5f, 2.5f); // Beispielposition 1
             manualPositions[1] = new Vector3(7.5f, 1.5f, 13.5f); // Beispielposition 2
+            manualPositions[2] = new Vector3(20.5f, 1.5f, 13.5f); // Beispielposition 2
 
             // Erstelle das Array mit den Wegpunkt-Positionen
-            pathPositions = CreatePathPositionsArray(manualPositions);
+            CreatePathPositionsArray(manualPositions);
 
-            // Färbe die Cubes entlang des Pfades
+            // color all path cubes
             CalculatePathCubes();
         } else {
             Debug.LogError("Spawn or Base object not found.");
         }
-    }*/
+    }
 
     // generates a grid of X x Y cubes with tag "Ground" on the ground, organized in rows
     void GenerateCubesGrid() {
@@ -117,22 +101,18 @@ public class GenerateCubes : MonoBehaviour {
         }
     }
 
-    public Vector3[] CreatePathPositionsArray(Vector3[] manualPositions) {
-        // Leeres List-Objekt zur Speicherung der Pfadpositionen erstellen
-        List<Vector3> pathPositionsList = new List<Vector3>();
+    public void CreatePathPositionsArray(Vector3[] manualPositions) {
+        // Erstelle eine leere Liste von Transformen
+        List<Transform> updatedWaypoints = new List<Transform>(waypoints);
 
-        AddSpawnAndBaseAsWaypoints(); // add spawn and base
-        Debug.Log("S and B added");
-        // Füge manuell definierte Positionen hinzu, falls vorhanden
-        if (manualPositions != null && manualPositions.Length > 0) {
-            // add positions
-            int insertIndex = 1; // index after spawn
-            foreach (Vector3 position in manualPositions) {
-                pathPositionsList.Insert(insertIndex, position);
-                insertIndex++;
-            }
-            Debug.Log("Manual positions added");
+        foreach (Vector3 pos in manualPositions) {
+            GameObject waypointObject = new GameObject("Waypoint");
+            waypointObject.transform.position = pos;
+            updatedWaypoints.Add(waypointObject.transform);
         }
-        return pathPositionsList.ToArray();
+        waypoints = updatedWaypoints.ToArray();
+        AddSpawnAndBaseAsWaypoints();
+
+        Debug.Log("Anzahl der Waypoints: " + waypoints.Length);
     }
 }
