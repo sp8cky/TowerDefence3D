@@ -5,17 +5,21 @@ using UnityEngine.AI;
 
 public class EnemyController : MonoBehaviour {
     
-    private GenerateCubes generateCubes; // Reference to the GenerateCubes script
-    private int currentWaypointIndex = 0;
-    private NavMeshAgent agent;
+    protected GenerateCubes generateCubes; // Reference to the GenerateCubes script
+    protected int currentWaypointIndex = 0;
+    protected NavMeshAgent agent;
+    protected GameManager gameManager;
+    protected int enemyScore = 1;
+    protected int enemyHealth = 1;
 
-    void Start() {
+    protected virtual void Start() {
         generateCubes = GameObject.FindObjectOfType<GenerateCubes>(); // Find the GenerateCubes script
+        gameManager = FindObjectOfType<GameManager>();
         agent = GetComponent<NavMeshAgent>();
         SetDestinationToNextWaypoint();
     }
 
-    void Update() {
+    protected virtual void Update() {
         // Check if the agent has reached the current waypoint
         if (agent.remainingDistance <= agent.stoppingDistance) {
             // Move to the next waypoint
@@ -25,20 +29,22 @@ public class EnemyController : MonoBehaviour {
             } else {
                 // Reached the last waypoint (Base), destroy the enemy
                 Debug.Log("Enemy reached Base.");
+                if (gameManager != null) gameManager.EnemyReachedBase(enemyScore);
                 Destroy(gameObject);
             }
         }
     }
 
-    void SetDestinationToNextWaypoint() {
+    protected virtual void SetDestinationToNextWaypoint() {
         // Check if there are waypoints remaining
         if (currentWaypointIndex < generateCubes.waypoints.Length) agent.SetDestination(generateCubes.waypoints[currentWaypointIndex].position);
     }
-
-    private void OnTriggerEnter(Collider other) {
-        if (other.CompareTag("Base")) {
-            Debug.Log("Collision Enemy with Base.");
-            Destroy(other.gameObject);
+    public void TakeDamage(int damageAmount) {
+        enemyHealth -= damageAmount;
+        if (enemyHealth <= 0) {
+            Destroy(gameObject);
+            Debug.Log("Enemy destroyed.");
+            if (gameManager != null) gameManager.AddScore(enemyScore);
         }
     }
 }

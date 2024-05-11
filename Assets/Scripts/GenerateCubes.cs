@@ -15,15 +15,17 @@ public class GenerateCubes : MonoBehaviour {
     void Start() {
         spawnObject = GameObject.FindGameObjectWithTag("Spawn");
         baseObject = GameObject.FindGameObjectWithTag("Base");
-
+        //GenerateRandomPath(2, 0.0f, 49.0f);
         if (spawnObject != null && baseObject != null) {
             GenerateCubesGrid();
 
             // Definiere manuelle Positionen
-            Vector3[] manualPositions = new Vector3[3];
-            manualPositions[0] = new Vector3(7.5f, 1.5f, 2.5f); // Beispielposition 1
-            manualPositions[1] = new Vector3(7.5f, 1.5f, 13.5f); // Beispielposition 2
-            manualPositions[2] = new Vector3(20.5f, 1.5f, 13.5f); // Beispielposition 2
+            Vector3[] manualPositions = new Vector3[5];
+            manualPositions[0] = new Vector3(7.5f, 1.5f, 2.5f);
+            manualPositions[1] = new Vector3(7.5f, 1.5f, 13.5f);
+            manualPositions[2] = new Vector3(20.5f, 1.5f, 13.5f);
+            manualPositions[3] = new Vector3(20.5f, 1.5f, 40.5f);
+            manualPositions[4] = new Vector3(30.5f, 1.5f, 40.5f);
 
             // Erstelle das Array mit den Wegpunkt-Positionen
             CreatePathPositionsArray(manualPositions);
@@ -33,26 +35,6 @@ public class GenerateCubes : MonoBehaviour {
         } else {
             Debug.LogError("Spawn or Base object not found.");
         }
-    }
-
-    // generates a grid of X x Y cubes with tag "Ground" on the ground, organized in rows
-    void GenerateCubesGrid() {
-        for (float x = 0.5f; x < gridSize.x; x++) {
-            // Create an empty GameObject as a parent for the current row
-            GameObject rowParent = new GameObject("Row " + (x + 0.5f));
-            rowParent.transform.parent = transform; // Set the ground object as the parent
-
-            for (float z = 0.5f; z < gridSize.y; z++) {
-                Vector3 position = new Vector3(x, 1f + (height / 2), z);
-                GameObject cube = Instantiate(cubePrefab, position, Quaternion.identity);
-                cube.name = "Cube " + (x + 0.5f).ToString("00") + "-" + (z + 0.5f).ToString("00");
-                Renderer renderer = cube.GetComponent<Renderer>();
-                if (renderer != null) renderer.material = transparentMaterial;
-                cube.tag = "Ground";
-                cube.transform.parent = rowParent.transform;
-            }
-        }
-        Debug.Log("Cubes successfully generated");
     }
 
     // adds spawn and base to waypoints
@@ -82,11 +64,7 @@ public class GenerateCubes : MonoBehaviour {
             }
         }
     }
-
-    private Vector3 RoundPosition(Vector3 position) {
-        return new Vector3(Mathf.Round(position.x + 0.5f), position.y, Mathf.Round(position.z + 0.5f));
-    }
-
+    
     // colors the current cube at the given position in the path
     private void ColorCubeAtPosition(Vector3 position) {
         // Check if the position is within the grid bounds
@@ -101,18 +79,67 @@ public class GenerateCubes : MonoBehaviour {
         }
     }
 
+    // creates an array of path positions from manual positions
     public void CreatePathPositionsArray(Vector3[] manualPositions) {
-        // Erstelle eine leere Liste von Transformen
+        GameObject waypointsParent = new GameObject("Waypoints"); //parent
         List<Transform> updatedWaypoints = new List<Transform>(waypoints);
 
-        foreach (Vector3 pos in manualPositions) {
-            GameObject waypointObject = new GameObject("Waypoint");
-            waypointObject.transform.position = pos;
+        for (int i = 0; i < manualPositions.Length; i++) {
+            GameObject waypointObject = new GameObject("WP " + (i + 1).ToString("00"));
+            waypointObject.transform.position = manualPositions[i];
+            
+            waypointObject.transform.parent = waypointsParent.transform;
             updatedWaypoints.Add(waypointObject.transform);
         }
         waypoints = updatedWaypoints.ToArray();
         AddSpawnAndBaseAsWaypoints();
 
         Debug.Log("Anzahl der Waypoints: " + waypoints.Length);
+    }
+
+    // generates a grid of X x Y cubes with tag "Ground" on the ground, organized in rows
+    void GenerateCubesGrid() {
+        for (float x = 0.5f; x < gridSize.x; x++) {
+            // Create an empty GameObject as a parent for the current row
+            GameObject rowParent = new GameObject("Row " + (x + 0.5f));
+            rowParent.transform.parent = transform; // Set the ground object as the parent
+
+            for (float z = 0.5f; z < gridSize.y; z++) {
+                Vector3 position = new Vector3(x, 1f + (height / 2), z);
+                GameObject cube = Instantiate(cubePrefab, position, Quaternion.identity);
+                cube.name = "Cube " + (x + 0.5f).ToString("00") + "-" + (z + 0.5f).ToString("00");
+                Renderer renderer = cube.GetComponent<Renderer>();
+                if (renderer != null) renderer.material = transparentMaterial;
+                cube.tag = "Ground";
+                cube.transform.parent = rowParent.transform;
+            }
+        }
+        Debug.Log("Cubes successfully generated");
+    }
+
+    // generates rabdom path TODO: fix me
+    public void GenerateRandomPath(int numWaypoints, float minBounds, float maxBounds) {
+        List<Transform> updatedWaypoints = new List<Transform>();
+
+        // Generate random spawn position on the first row
+        float randomZSpawn = Random.Range(minBounds + 0.5f, maxBounds + 0.5f);
+        Vector3 randomSpawnPosition = new Vector3(0.5f, 1.5f, randomZSpawn);
+        spawnObject.transform.position = randomSpawnPosition;
+        updatedWaypoints.Add(spawnObject.transform); // Add spawn as the first waypoint
+
+
+        // Generate random base position on the last row
+        float randomZBase = Random.Range(minBounds + 0.5f, maxBounds + 0.5f);
+        Vector3 randomBasePosition = new Vector3(25.5f, 1.5f, randomZBase);
+        baseObject.transform.position = randomBasePosition;
+        updatedWaypoints.Add(baseObject.transform); // Add base as the last waypoint
+
+        // Update waypoints array
+        waypoints = updatedWaypoints.ToArray();
+        Debug.Log("Anzahl der Waypoints: " + waypoints.Length);
+    }
+    
+    private Vector3 RoundPosition(Vector3 position) {
+        return new Vector3(Mathf.Round(position.x + 0.5f), position.y, Mathf.Round(position.z + 0.5f));
     }
 }

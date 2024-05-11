@@ -4,8 +4,8 @@ using UnityEngine;
 using UnityEngine.AI;
 
 public class Spawner : MonoBehaviour {
-    public GameObject enemyPrefab; // Prefab für die zu spawnende Kugel
-    public float spawnInterval = 10f; // Intervall zwischen den Spawns
+    public List<GameObject> enemyPrefabs; 
+    public float spawnInterval = 10f; // interval between spawns
 
     IEnumerator Start() {
         while (true) {
@@ -15,7 +15,9 @@ public class Spawner : MonoBehaviour {
     }
 
     void SpawnSphere() {
-        Instantiate(enemyPrefab, transform.position, Quaternion.identity);
+        int randomIndex = Random.Range(0, enemyPrefabs.Count);
+        GameObject randomPrefab = enemyPrefabs[randomIndex];
+        Instantiate(randomPrefab, transform.position + new Vector3(0f, 1.0f, 0f), Quaternion.identity);
     }
 
 }
