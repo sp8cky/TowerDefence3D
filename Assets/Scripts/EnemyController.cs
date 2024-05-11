@@ -17,17 +17,14 @@ public class EnemyController : MonoBehaviour {
 
     void Update() {
         // Check if the agent has reached the current waypoint
-        if (agent.remainingDistance <= agent.stoppingDistance)
-        {
+        if (agent.remainingDistance <= agent.stoppingDistance) {
             // Move to the next waypoint
             currentWaypointIndex++;
-            if (currentWaypointIndex < generateCubes.waypoints.Length)
-            {
+            if (currentWaypointIndex < generateCubes.waypoints.Length) {
                 SetDestinationToNextWaypoint();
-            }
-            else
-            {
+            } else {
                 // Reached the last waypoint (Base), destroy the enemy
+                Debug.Log("Enemy reached Base.");
                 Destroy(gameObject);
             }
         }
@@ -35,10 +32,7 @@ public class EnemyController : MonoBehaviour {
 
     void SetDestinationToNextWaypoint() {
         // Check if there are waypoints remaining
-        if (currentWaypointIndex < generateCubes.waypoints.Length)
-        {
-            agent.SetDestination(generateCubes.waypoints[currentWaypointIndex].position);
-        }
+        if (currentWaypointIndex < generateCubes.waypoints.Length) agent.SetDestination(generateCubes.waypoints[currentWaypointIndex].position);
     }
 
     private void OnTriggerEnter(Collider other) {
