@@ -7,7 +7,10 @@ public class GameManager : MonoBehaviour {
     private UIManager uiManager;
     private Spawner enemySpawner;
     private TowerController towerController;
+    private PlayerController playerController;
+    private CameraSwitcher cameraSwitcher;
     public GameState currentState = GameState.Preparation;
+    private bool spacePressed = false; // check if space key is pressed for not to trigger the button 
     public int baseHealth; 
     private int currentBaseHealth;
     private int playerHealth; 
@@ -24,8 +27,10 @@ public class GameManager : MonoBehaviour {
         uiManager = FindObjectOfType<UIManager>();
         enemySpawner = FindObjectOfType<Spawner>();
         towerController = FindObjectOfType<TowerController>();
-        uiManager = FindObjectOfType<UIManager>(); 
-        if (uiManager == null || enemySpawner == null || towerController == null) Debug.LogError("UIManager, EnemySpawner oder TowerManager nicht gefunden.");
+        uiManager = FindObjectOfType<UIManager>();
+        playerController = FindObjectOfType<PlayerController>();
+        cameraSwitcher = FindObjectOfType<CameraSwitcher>(); 
+        if (uiManager == null || enemySpawner == null || towerController == null || playerController == null || cameraSwitcher == null) Debug.LogError("Scripte nicht gefunden.");
         
         // Initialisierung von Spielerwerten
         playerHealth = 100;
@@ -37,8 +42,17 @@ public class GameManager : MonoBehaviour {
         UpdateHighScore();
 
         // Setze den Spielzustand auf Vorbereitung (Preparation)
+        Debug.Log("Set game state to Preparation and freeze player");
         currentState = GameState.Preparation;
         uiManager.UpdateGameState("Preparation");
+        playerController.FreezePlayer();
+    }
+    void Update() {
+        if (Input.GetKeyDown(KeyCode.Space)) {
+            spacePressed = true;
+        } else if (Input.GetKeyUp(KeyCode.Space)) {
+            spacePressed = false;
+        }
     }
 
     public int GetPlayerHealth() { return playerHealth; }
@@ -69,21 +83,27 @@ public class GameManager : MonoBehaviour {
 
     public void StartNextRound() {
         Debug.Log("Start next round");
-        if (currentState == GameState.Preparation) {
-            currentState = GameState.Attack;
-            uiManager.UpdateGameState("Attack"); // Aktualisiere den UI-Text, um den neuen Zustand anzuzeigen
+        if (!spacePressed) { // TODO: fix space trigger
+            if (currentState == GameState.Preparation) { // ATTACK
+                currentState = GameState.Attack;
+                uiManager.UpdateGameState("Attack"); // Aktualisiere den UI-Text, um den neuen Zustand anzuzeigen
 
-            // start timer, enemy spawn and tower 
-            uiManager.StartTimer(10f); 
-            enemySpawner.StartEnemySpawn();
-            towerController.Update();
+                // start timer, enemy spawn and tower 
+                uiManager.StartTimer(10f); 
+                enemySpawner.StartEnemySpawn();
+                towerController.Update();
+                cameraSwitcher.SwitchView();
+                playerController.UnfreezePlayer();
 
-        } else if (currentState == GameState.Attack) {
-            currentState = GameState.Preparation;
-            uiManager.UpdateGameState("Preparation"); 
-            enemySpawner.StopEnemySpawn();
-            currentRound++; 
-            uiManager.UpdateRound(currentRound);
+            } else if (currentState == GameState.Attack) { // PREP
+                currentState = GameState.Preparation;
+                uiManager.UpdateGameState("Preparation"); 
+                enemySpawner.StopEnemySpawn();
+                currentRound++; 
+                uiManager.UpdateRound(currentRound);
+                cameraSwitcher.SwitchView();
+                playerController.FreezePlayer();
+            }
         }
     }
 
@@ -94,8 +114,7 @@ public class GameManager : MonoBehaviour {
         if (uiManager != null) uiManager.UpdatePlayerHealth(playerHealth);
         if (playerHealth <= 0) {
             Debug.Log("Freeze Player");
-            PlayerController player = FindObjectOfType<PlayerController>();
-            if (player != null) player.FreezePlayer();  
+            if (playerController != null) playerController.FreezePlayer();
         }
     }
 }

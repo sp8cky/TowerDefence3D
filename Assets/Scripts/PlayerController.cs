@@ -12,7 +12,7 @@ public class PlayerController : MonoBehaviour {
     void Start() {
         rb = GetComponent<Rigidbody>();
         // Deaktiviere das Einfrieren der Rotation des Rigidbody, damit sich der Spieler umsehen kann
-        rb.freezeRotation = true;
+        //rb.freezeRotation = true;
         gameManager = FindObjectOfType<GameManager>(); 
         if (gameManager == null) Debug.LogError("Gamemanager nicht gefunden.");
         health = gameManager.GetPlayerHealth();
@@ -35,20 +35,23 @@ public class PlayerController : MonoBehaviour {
 
         // camera rotation vertical (around X-axis)
         Camera camera = GetComponentInChildren<Camera>();
-        camera.transform.Rotate(Vector3.left, mouseY);
-
+        if (camera != null) camera.transform.Rotate(Vector3.left, mouseY);
+    
         // jump
         if (Input.GetKeyDown(KeyCode.Space)) Jump();
         
     }
     public void FreezePlayer() {
         isFrozen = true;
+        if (rb == null) rb = GetComponent<Rigidbody>();
         rb.velocity = Vector3.zero; // stop movement of player
-        rb.angularVelocity = Vector3.zero; // stop rotation of player
+        rb.angularVelocity = Vector3.zero; // stop rotation of player 
+        Debug.Log("Player frozen");
     }
 
     public void UnfreezePlayer() {
         isFrozen = false;
+        Debug.Log("Player unfrozen");
     }
 
     void Jump() {
