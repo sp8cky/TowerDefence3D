@@ -8,6 +8,8 @@ TagManager:
   - Base
   - Path
   - Ground
+  - Enemy
+  - Tower
   layers:
   - Default
   - TransparentFX

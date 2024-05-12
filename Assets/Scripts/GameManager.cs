@@ -5,30 +5,43 @@ using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour {
     private UIManager uiManager;
-    public int baseHealth = 30; // start base-core value
+    private Spawner enemySpawner;
+    private TowerController towerController;
+    public GameState currentState = GameState.Preparation;
+    public int baseHealth; 
     private int currentBaseHealth;
     private int playerHealth; 
     private int playerScore;
     private int playerHighScore;
+    private int currentRound = 1;
+    public enum GameState {
+        Preparation,
+        Attack
+    }
 
     void Start() {
         Debug.ClearDeveloperConsole();
+        uiManager = FindObjectOfType<UIManager>();
+        enemySpawner = FindObjectOfType<Spawner>();
+        towerController = FindObjectOfType<TowerController>();
         uiManager = FindObjectOfType<UIManager>(); 
-        if (uiManager == null) Debug.LogError("UIManager nicht gefunden.");
+        if (uiManager == null || enemySpawner == null || towerController == null) Debug.LogError("UIManager, EnemySpawner oder TowerManager nicht gefunden.");
         
         // Initialisierung von Spielerwerten
-        playerHealth = 50;
+        playerHealth = 100;
+        baseHealth = 100;
         playerScore = 0;
         currentBaseHealth = baseHealth;
-
         playerHighScore = PlayerPrefs.GetInt("HighScore", 0);
-
         // Aktualisiere die Anzeige des Highscores
         UpdateHighScore();
+
+        // Setze den Spielzustand auf Vorbereitung (Preparation)
+        currentState = GameState.Preparation;
+        uiManager.UpdateGameState("Preparation");
     }
 
     public int GetPlayerHealth() { return playerHealth; }
-
     public int GetPlayerScore() { return playerScore; }
 
     public void AddScore(int score) {
@@ -53,9 +66,28 @@ public class GameManager : MonoBehaviour {
         Debug.Log("End game, load scene: Game Over");
         SceneManager.LoadScene("GameOver");
     }
-    void UpdateHighScore() {
-        if (uiManager != null) uiManager.UpdateHighScore(playerHighScore);
+
+    public void StartNextRound() {
+        Debug.Log("Start next round");
+        if (currentState == GameState.Preparation) {
+            currentState = GameState.Attack;
+            uiManager.UpdateGameState("Attack"); // Aktualisiere den UI-Text, um den neuen Zustand anzuzeigen
+
+            // start timer, enemy spawn and tower 
+            uiManager.StartTimer(10f); 
+            enemySpawner.StartEnemySpawn();
+            towerController.Update();
+
+        } else if (currentState == GameState.Attack) {
+            currentState = GameState.Preparation;
+            uiManager.UpdateGameState("Preparation"); 
+            enemySpawner.StopEnemySpawn();
+            currentRound++; 
+            uiManager.UpdateRound(currentRound);
+        }
     }
+
+    void UpdateHighScore() { if (uiManager != null) uiManager.UpdateHighScore(playerHighScore); }
 
     public void UpdatePlayerHealth(int damage) {
         playerHealth -= damage;

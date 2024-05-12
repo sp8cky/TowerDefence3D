@@ -2,15 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-// Child class for the shooting enemy with bullets targeting the player
 public class EnemyShooting : EnemyController {
     public GameObject bulletPrefab; 
     private PlayerController playerController;
-    public float attackSpeed = 1f; 
     public float attackRange = 20f;
     public int bulletDamage = 5;
     public float bulletTargetDuration = 2f; // time to seek target
-    private float nextFireTime; 
+    private float nextFireTime; // time for next attack
+    private float attackCooldown = 4f; // cooldown between attacks
     protected override void Start() {
         playerController = FindObjectOfType<PlayerController>();
         base.Start();
@@ -20,15 +19,18 @@ public class EnemyShooting : EnemyController {
 
     protected override void Update() {
         base.Update();
-        // fire after delay is over
+        
+        // fire after delay is over and cooldown is passed
         if (Vector3.Distance(transform.position, playerController.transform.position) <= attackRange && Time.time >= nextFireTime) {
             Shoot();
-            nextFireTime = Time.time + 1f / attackSpeed;
+            nextFireTime = Time.time + attackCooldown;
         }
     }
+
     IEnumerator KeepTargetDirection(EnemyBullet bullet) {
         yield return new WaitForSeconds(bulletTargetDuration);
         bullet.StopTargetingPlayer(); // stop targeting the player after the duration
+        bullet.ChangeToStraightBullet();
     }
 
     void Shoot() {

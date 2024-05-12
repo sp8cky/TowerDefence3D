@@ -781,7 +781,7 @@ GameObject:
   - component: {fileID: 2340811493264098390}
   m_Layer: 0
   m_Name: Tower
-  m_TagString: Untagged
+  m_TagString: Tower
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -825,6 +825,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 8
   bulletPrefab: {fileID: 852786675578406562, guid: 5aeeed79a59f42945861ebe32ad0b5fe, type: 3}
+  damage: 1
 --- !u!1 &5686986174902761603
 GameObject:
   m_ObjectHideFlags: 0

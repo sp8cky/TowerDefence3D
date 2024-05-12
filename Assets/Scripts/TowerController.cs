@@ -12,7 +12,7 @@ public class TowerController : MonoBehaviour {
     public GameObject bulletPrefab;
     public int damage = 1;
 
-    void Update() {
+    public void Update() {
         // find enemy in radius
         Collider[] colliders = Physics.OverlapSphere(transform.position, attackRadius, enemyLayer);
 
