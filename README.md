@@ -8,7 +8,10 @@ This project is a Tower Defence implementation in 3D using Unity. It follows the
 - Ground and logic Grid with Path: When the game starts, spawn and base are displayed and the path between them is coloured.
 - Different kinds of enemies with different properies.
 - Different kinds of towers, which can be placed right and left the path.
-- Score and health system: The player receives points for destroying the enemies. The base loses life when enemies reach it. The player can also be attacked by some opponents and loses health. The game ends, when the base has no health anymore. The player can't do actions, if he looses all health.
+- Score and health system: The player receives points for destroying the enemies. The base loses health when enemies reach it. The player can also be attacked by some opponents and loses health. The game ends, when the base has no health anymore. The player get freezed, if he looses all health
+- Rounds and game states
+- UI with important informations
+- Camera switch between game and player view
 
 ## Important Notes:
 - Unity Version: This project was developed using Unity LTS version 2022.3.26f1.
