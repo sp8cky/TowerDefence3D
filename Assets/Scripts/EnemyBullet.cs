@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+// class for the enemy bullets with initialization, seeking and hitting target
 public class EnemyBullet : MonoBehaviour {
     public float speed = 10f; 
     public int damage = 5; 
@@ -21,31 +22,23 @@ public class EnemyBullet : MonoBehaviour {
 
     void Update() {
         if (target == null) {
-        Destroy(gameObject);
-        return;
-    }
+            Destroy(gameObject);
+            return;
+        }
 
-    // Check if the bullet should still target the player
-    if (isTargetingPlayer) {
-        // Move the bullet towards the target
-        transform.position = Vector3.MoveTowards(transform.position, target.position, speed * Time.deltaTime);
-        
-        targetingTimer += Time.deltaTime; // Update targeting timer
-        if (targetingTimer >= targetingDuration) StopTargetingPlayer();
+        // Check if the bullet should still target the player
+        if (isTargetingPlayer) {
+            // Move the bullet towards the target
+            transform.position = Vector3.MoveTowards(transform.position, target.position, speed * Time.deltaTime);
+            
+            targetingTimer += Time.deltaTime; // Update targeting timer
+            if (targetingTimer >= targetingDuration) StopTargetingPlayer();
+        }
     }
-
-    }
-
-    //void HitTarget() {
-        // hit target
-    //    Debug.Log("EnemyBullet hits target: " + target.name);
-    //    target.GetComponent<PlayerController>().TakeDamage(damage);
-    //    Destroy(gameObject);
-    //}
 
     void OnCollisionEnter(Collision collision) {
         if (collision.gameObject.CompareTag("Player")) {
-            Debug.Log("EnemyBullet hits target: " + target.name);
+            //Debug.Log("EnemyBullet hits target: " + target.name);
             target.GetComponent<PlayerController>().TakeDamage(damage);
             Destroy(gameObject);
         }

@@ -2,7 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class BulletController : MonoBehaviour {
+// class for the tower bullets with initialization, seeking and hitting target
+public class TowerBulletController : MonoBehaviour {
     public float speed = 10f; 
     private Transform target; 
     private int damage;
@@ -39,7 +40,7 @@ public class BulletController : MonoBehaviour {
     }
 
     void HitTarget() {
-        Debug.Log("Bullet hits target: " + target.name);
+        //Debug.Log("TowerBullet hits target: " + target.name);
         EnemyController enemyController = target.GetComponent<EnemyController>();
         if (enemyController != null) enemyController.TakeDamage(damage);
         Destroy(gameObject);

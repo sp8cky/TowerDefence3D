@@ -3,17 +3,17 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
+// Parent class for all enemies with waypoints, movementand taking damage
 public class EnemyController : MonoBehaviour {
-    
-    protected GenerateCubes generateCubes; // Reference to the GenerateCubes script
+    protected GenerateCubes generateCubes;
+    protected GameManager gameManager;
     protected int currentWaypointIndex = 0;
     protected NavMeshAgent agent;
-    protected GameManager gameManager;
     protected int enemyScore = 1;
     protected int enemyHealth = 1;
 
     protected virtual void Start() {
-        generateCubes = GameObject.FindObjectOfType<GenerateCubes>(); // Find the GenerateCubes script
+        generateCubes = FindObjectOfType<GenerateCubes>(); 
         gameManager = FindObjectOfType<GameManager>();
         agent = GetComponent<NavMeshAgent>();
         SetDestinationToNextWaypoint();
@@ -39,8 +39,9 @@ public class EnemyController : MonoBehaviour {
         // Check if there are waypoints remaining
         if (currentWaypointIndex < generateCubes.waypoints.Length) agent.SetDestination(generateCubes.waypoints[currentWaypointIndex].position);
     }
-    public void TakeDamage(int damageAmount) {
-        enemyHealth -= damageAmount;
+
+    public void TakeDamage(int damage) {
+        enemyHealth -= damage;
         if (enemyHealth <= 0) {
             Destroy(gameObject);
             Debug.Log("Enemy destroyed.");

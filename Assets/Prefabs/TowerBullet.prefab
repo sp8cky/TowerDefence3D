@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 8492452209272570897}
   - component: {fileID: 8665346231438471115}
   m_Layer: 0
-  m_Name: Bullet
+  m_Name: TowerBullet
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -119,4 +119,3 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 10
-  damage: 10

@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+// Child class for the shooting enemy with bullets targeting the player
 public class EnemyShooting : EnemyController {
     public GameObject bulletPrefab; 
     private PlayerController playerController;
@@ -19,7 +20,6 @@ public class EnemyShooting : EnemyController {
 
     protected override void Update() {
         base.Update();
-        
         // fire after delay is over
         if (Vector3.Distance(transform.position, playerController.transform.position) <= attackRange && Time.time >= nextFireTime) {
             Shoot();
@@ -28,15 +28,13 @@ public class EnemyShooting : EnemyController {
     }
     IEnumerator KeepTargetDirection(EnemyBullet bullet) {
         yield return new WaitForSeconds(bulletTargetDuration);
-
-        // stop targeting the player after the duration
-        bullet.StopTargetingPlayer();
+        bullet.StopTargetingPlayer(); // stop targeting the player after the duration
     }
 
     void Shoot() {
         Vector3 directionToPlayer = (playerController.transform.position - transform.position).normalized;
-
-        // Erzeuge die Kugel am Gegner und übergebe die Richtung zum Spieler
+        
+        // create bullet at enemy and pass direction to player
         GameObject bulletGO = Instantiate(bulletPrefab, transform.position, Quaternion.LookRotation(directionToPlayer));
         EnemyBullet bullet = bulletGO.GetComponent<EnemyBullet>();
 

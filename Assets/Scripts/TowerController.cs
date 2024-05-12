@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+// Parent class for all towers with attack radius, cooldown and target enemy
 public class TowerController : MonoBehaviour {
     public float attackRadius = 5f; 
     public float attackCooldown = 1f; // cooldown between attacks
@@ -26,9 +27,9 @@ public class TowerController : MonoBehaviour {
     }
 
     void AttackEnemy(Transform enemy) {
-        Debug.Log("Tower attacks enemy: " + enemy.name);
+        //Debug.Log("Tower attacks enemy: " + enemy.name);
         GameObject bulletGO = Instantiate(bulletPrefab, transform.position, Quaternion.identity);
-        BulletController bullet = bulletGO.GetComponent<BulletController>();
+        TowerBulletController bullet = bulletGO.GetComponent<TowerBulletController>();
 
         if (bullet != null) bullet.Initialize(enemy, damage);
     }

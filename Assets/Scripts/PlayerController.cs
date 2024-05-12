@@ -5,8 +5,9 @@ public class PlayerController : MonoBehaviour {
     public float moveSpeed = 5f; // Bewegungsgeschwindigkeit des Spielers
     public float jumpForce = 10f; // Sprungkraft des Spielers
     public float lookSpeed = 2f; // Rotationsgeschwindigkeit der Kamera
-    private int health = 50;
-    private Rigidbody rb; // Referenz auf den Rigidbody des Spielers
+    private bool isFrozen = false;
+    private int health;
+    private Rigidbody rb; 
 
     void Start() {
         rb = GetComponent<Rigidbody>();
@@ -14,9 +15,11 @@ public class PlayerController : MonoBehaviour {
         rb.freezeRotation = true;
         gameManager = FindObjectOfType<GameManager>(); 
         if (gameManager == null) Debug.LogError("Gamemanager nicht gefunden.");
+        health = gameManager.GetPlayerHealth();
     }
 
     void Update() {
+        if (isFrozen) return;
         // player movement
         float horizontalInput = Input.GetAxis("Horizontal");
         float verticalInput = Input.GetAxis("Vertical");
@@ -38,8 +41,18 @@ public class PlayerController : MonoBehaviour {
         if (Input.GetKeyDown(KeyCode.Space)) Jump();
         
     }
+    public void FreezePlayer() {
+        isFrozen = true;
+        rb.velocity = Vector3.zero; // stop movement of player
+        rb.angularVelocity = Vector3.zero; // stop rotation of player
+    }
+
+    public void UnfreezePlayer() {
+        isFrozen = false;
+    }
 
     void Jump() {
+        if (isFrozen) return;
         // check if player is grounded
         if (Physics.Raycast(transform.position, Vector3.down, 1.1f)) rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
     }
