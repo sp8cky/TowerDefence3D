@@ -25,7 +25,7 @@ This project is a Tower Defence implementation in 3D using Unity. It follows the
 - Player attacks
 
 ## Getting Started:
-- Clone or download the project repository from [git@github.com:sp8cky/Space-Survivor.git](https://github.com/sp8cky/Space-Survivor)
+- Clone or download the project repository from [git@github.com:sp8cky/TowerDefence3D.git](https://github.com/sp8cky/TowerDefence3D)
 - Open the project in Unity.
 - Explore the scripts and scene files to understand the project structure and gameplay mechanics.
 - Make adjustments or modifications as desired to customize the game.
