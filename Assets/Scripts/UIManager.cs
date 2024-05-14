@@ -5,7 +5,9 @@ using UnityEngine.UI;
 using TMPro;
 
 public class UIManager : MonoBehaviour {
-    private GameManager gameManager;
+    public static UIManager instance;
+    private GameObject buildUI;
+    private GameObject playerUI;
     public TMP_Text scoreText;
     public TMP_Text highScoreText;
     public TMP_Text playerHealthText;
@@ -15,10 +17,26 @@ public class UIManager : MonoBehaviour {
     public TMP_Text timerText;
     private float currentTimer = 10f;
     private bool isTimerRunning = false; 
+    private bool isBuildUIOpen = false;
+    private bool isPlayerUIOpen = true;
 
+    void Awake() {
+        if (instance == null) {
+            instance = this;
+        } else {
+            Destroy(gameObject);
+        }
+    }
     
     private void Start() {
-        gameManager = FindObjectOfType<GameManager>();
+        // UI settings
+        buildUI = GameObject.Find("BuildUI");
+        playerUI = GameObject.Find("PlayerUI");
+        if (buildUI == null || playerUI == null) Debug.Log("UIs not found");
+        buildUI.SetActive(isBuildUIOpen);
+        playerUI.SetActive(isPlayerUIOpen);
+
+        // initialize UI texts
         scoreText.text = "Score: " + "0".ToString();
         baseHealthText.text = "Base-Health: " + "100".ToString();
         playerHealthText.text = "Player-Health: " + "100".ToString();
@@ -44,7 +62,7 @@ public class UIManager : MonoBehaviour {
         if (time <= 0) {
             timerText.text = "Timer: 0";
             isTimerRunning = false;
-            gameManager.StartNextRound(); // start next round
+            GameManager.instance.StartNextRound(); // start next round
         } else {
             timerText.text = "Timer: " + Mathf.RoundToInt(time).ToString();
         }
@@ -54,5 +72,30 @@ public class UIManager : MonoBehaviour {
     public void StartTimer(float duration) {
         currentTimer = duration;
         isTimerRunning = true;
+    }
+
+    // toggles both UIs
+    public void ToggleUIs() {
+        if (isBuildUIOpen) {
+            isBuildUIOpen = false;
+            isPlayerUIOpen = true;
+            buildUI.SetActive(false);
+            ToggleUIComponents("Infos", true);
+        } else if (isPlayerUIOpen) {
+            isBuildUIOpen = true;
+            isPlayerUIOpen = false;
+            buildUI.SetActive(true);
+            ToggleUIComponents("Infos", false);
+        }
+    }
+
+    // helps to just toggle specific UI components
+    void ToggleUIComponents(string name, bool show) {
+        Transform objectsToHide = playerUI.transform.Find(name);
+        if (objectsToHide != null) {
+            foreach (Transform child in objectsToHide) child.gameObject.SetActive(show); 
+        } else {
+            Debug.LogError("objectsToHide nicht gefunden!");
+        }
     }
 }

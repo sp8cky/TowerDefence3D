@@ -4,13 +4,12 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour {
-    private UIManager uiManager;
+    public static GameManager instance;
     private Spawner enemySpawner;
     private TowerController towerController;
     private PlayerController playerController;
     private CameraSwitcher cameraSwitcher;
     public GameState currentState = GameState.Preparation;
-    private bool spacePressed = false; // check if space key is pressed for not to trigger the button 
     public int baseHealth; 
     private int currentBaseHealth;
     private int playerHealth; 
@@ -21,38 +20,36 @@ public class GameManager : MonoBehaviour {
         Preparation,
         Attack
     }
+    void Awake() {
+        if (instance == null) {
+            instance = this;
+        } else {
+            Destroy(gameObject);
+        }
+    }
 
     void Start() {
         Debug.ClearDeveloperConsole();
-        uiManager = FindObjectOfType<UIManager>();
         enemySpawner = FindObjectOfType<Spawner>();
         towerController = FindObjectOfType<TowerController>();
-        uiManager = FindObjectOfType<UIManager>();
         playerController = FindObjectOfType<PlayerController>();
         cameraSwitcher = FindObjectOfType<CameraSwitcher>(); 
-        if (uiManager == null || enemySpawner == null || towerController == null || playerController == null || cameraSwitcher == null) Debug.LogError("Scripte nicht gefunden.");
+        if (enemySpawner == null || towerController == null || playerController == null || cameraSwitcher == null) Debug.LogError("Scripte nicht gefunden.");
         
-        // Initialisierung von Spielerwerten
+        // initialize of game variables
         playerHealth = 100;
         baseHealth = 100;
         playerScore = 0;
         currentBaseHealth = baseHealth;
         playerHighScore = PlayerPrefs.GetInt("HighScore", 0);
-        // Aktualisiere die Anzeige des Highscores
+        // update highscore
         UpdateHighScore();
 
-        // Setze den Spielzustand auf Vorbereitung (Preparation)
+        // first state is Preparation
         Debug.Log("Set game state to Preparation and freeze player");
         currentState = GameState.Preparation;
-        uiManager.UpdateGameState("Preparation");
+        UIManager.instance.UpdateGameState("Preparation");
         playerController.FreezePlayer();
-    }
-    void Update() {
-        if (Input.GetKeyDown(KeyCode.Space)) {
-            spacePressed = true;
-        } else if (Input.GetKeyUp(KeyCode.Space)) {
-            spacePressed = false;
-        }
     }
 
     public int GetPlayerHealth() { return playerHealth; }
@@ -60,7 +57,7 @@ public class GameManager : MonoBehaviour {
 
     public void AddScore(int score) {
         playerScore += score;
-        if (uiManager != null) uiManager.UpdateScore(playerScore);
+        UIManager.instance.UpdateScore(playerScore);
         // check if new highscore
         if (playerScore > playerHighScore) {
             playerHighScore = playerScore;
@@ -72,7 +69,7 @@ public class GameManager : MonoBehaviour {
 
     public void EnemyReachedBase(int enemyScore) {
         currentBaseHealth -= enemyScore;
-        if (uiManager != null) uiManager.UpdateBaseHealth(currentBaseHealth);
+        UIManager.instance.UpdateBaseHealth(currentBaseHealth);
         if (currentBaseHealth <= 0) EndGame();
     }
 
@@ -81,37 +78,36 @@ public class GameManager : MonoBehaviour {
         SceneManager.LoadScene("GameOver");
     }
 
-    public void StartNextRound() {
+    public void StartNextRound() { // TODO: space triggers at the beginning the ready button in unity
         Debug.Log("Start next round");
-        if (!spacePressed) { // TODO: fix space trigger
-            if (currentState == GameState.Preparation) { // ATTACK
-                currentState = GameState.Attack;
-                uiManager.UpdateGameState("Attack"); // Aktualisiere den UI-Text, um den neuen Zustand anzuzeigen
+        
+        if (currentState == GameState.Preparation) { // ATTACK
+            currentState = GameState.Attack;
+            UIManager.instance.UpdateGameState("Attack");
 
-                // start timer, enemy spawn and tower 
-                uiManager.StartTimer(10f); 
-                enemySpawner.StartEnemySpawn();
-                towerController.Update();
-                cameraSwitcher.SwitchView();
-                playerController.UnfreezePlayer();
-
-            } else if (currentState == GameState.Attack) { // PREP
-                currentState = GameState.Preparation;
-                uiManager.UpdateGameState("Preparation"); 
-                enemySpawner.StopEnemySpawn();
-                currentRound++; 
-                uiManager.UpdateRound(currentRound);
-                cameraSwitcher.SwitchView();
-                playerController.FreezePlayer();
-            }
+            // start timer, enemy spawn and tower 
+            UIManager.instance.StartTimer(10f); 
+            enemySpawner.StartEnemySpawn();
+            towerController.Update();
+            cameraSwitcher.SwitchView();
+            playerController.UnfreezePlayer();
+        } else if (currentState == GameState.Attack) { // PREP
+            currentState = GameState.Preparation;
+            UIManager.instance.UpdateGameState("Preparation"); 
+            enemySpawner.StopEnemySpawn();
+            currentRound++; 
+            UIManager.instance.UpdateRound(currentRound);
+            cameraSwitcher.SwitchView();
+            playerController.FreezePlayer();
         }
+        
     }
 
-    void UpdateHighScore() { if (uiManager != null) uiManager.UpdateHighScore(playerHighScore); }
+    void UpdateHighScore() { UIManager.instance.UpdateHighScore(playerHighScore); }
 
     public void UpdatePlayerHealth(int damage) {
         playerHealth -= damage;
-        if (uiManager != null) uiManager.UpdatePlayerHealth(playerHealth);
+        UIManager.instance.UpdatePlayerHealth(playerHealth);
         if (playerHealth <= 0) {
             Debug.Log("Freeze Player");
             if (playerController != null) playerController.FreezePlayer();

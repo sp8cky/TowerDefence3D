@@ -1,7 +1,6 @@
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour {
-    private GameManager gameManager;
     public float moveSpeed = 5f; // Bewegungsgeschwindigkeit des Spielers
     public float jumpForce = 10f; // Sprungkraft des Spielers
     public float lookSpeed = 2f; // Rotationsgeschwindigkeit der Kamera
@@ -13,9 +12,7 @@ public class PlayerController : MonoBehaviour {
         rb = GetComponent<Rigidbody>();
         // Deaktiviere das Einfrieren der Rotation des Rigidbody, damit sich der Spieler umsehen kann
         //rb.freezeRotation = true;
-        gameManager = FindObjectOfType<GameManager>(); 
-        if (gameManager == null) Debug.LogError("Gamemanager nicht gefunden.");
-        health = gameManager.GetPlayerHealth();
+        health = GameManager.instance.GetPlayerHealth();
     }
 
     void Update() {
@@ -62,6 +59,6 @@ public class PlayerController : MonoBehaviour {
 
     public void TakeDamage(int damage) {
         health -= damage;
-        gameManager.UpdatePlayerHealth(health);
+        GameManager.instance.UpdatePlayerHealth(health);
     }
 }
