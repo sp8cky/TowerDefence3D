@@ -8,15 +8,15 @@ This project is a Tower Defence implementation in 3D using Unity. It follows the
 - Ground and logic Grid with Path: When the game starts, spawn and base are displayed and the path between them is coloured.
 - Different kinds of enemies with different properies.
 - Different kinds of towers, which can be placed right and left the path.
-- Score and health system: The player receives points for destroying the enemies. The base loses health when enemies reach it. The player can also be attacked by some opponents and loses health. The game ends, when the base has no health anymore. The player get freezed, if he looses all health
+- Score and health system: The player receives points for destroying the enemies. The base loses health when enemies reach it. The player can also be attacked by some opponents and loses health. The game ends, when the base has no health anymore. The player get freezed, if he looses all health.
 - Rounds and game states
 - UI with important informations
 - Camera switch between game and player view
 
 ## Important Notes:
 - Unity Version: This project was developed using Unity LTS version 2022.3.26f1.
-- Compatibility: The game is designed for 3D gameplay and is compatible with both desktop and mobile platforms.
-- Code Structure: The project follows a modular code structure, making it easy to understand and extend. Scripts are organized into logical components such as PlayerController, EnemyController, and GameManager.
+- Compatibility: The game is designed for 3D gameplay and is compatible with desktop platforms.
+- Code Structure: The project follows a modular code structure, making it easy to understand and extend. Scripts are organized into logical components such as PlayerController, EnemyController and GameManager.
 - Feedback and Contributions: I haven't been working with Unity for that long, Feedback and contributions are welcome! If you encounter any issues or have suggestions for improvements, feel free to open an issue or submit a pull request on GitHub.
 
 ## Project status
