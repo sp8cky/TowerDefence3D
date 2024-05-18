@@ -28,7 +28,7 @@ public class CameraSwitcher : MonoBehaviour {
     private void ZoomCamera(float scrollInput) { // TODO: implement zooming on mouse position
         // change camera position based on scroll input
         Vector3 newPosition = gameCamera.transform.position + gameCamera.transform.forward * scrollInput * zoomSpeed;
-        newPosition.y = Mathf.Clamp(newPosition.y, 20f, 60); 
+        newPosition.y = Mathf.Clamp(newPosition.y, 10f, 60); 
         gameCamera.transform.position = newPosition;
     }
 }

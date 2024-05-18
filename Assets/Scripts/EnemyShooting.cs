@@ -5,11 +5,11 @@ using UnityEngine;
 public class EnemyShooting : EnemyController {
     public GameObject bulletPrefab; 
     private PlayerController playerController;
-    public float attackRange = 20f;
+    public float attackRange = 15f;
     public int bulletDamage = 5;
     public float bulletTargetDuration = 2f; // time to seek target
     private float nextFireTime; // time for next attack
-    private float attackCooldown = 4f; // cooldown between attacks
+    private float attackCooldown = 10f; // cooldown between attacks
     protected override void Start() {
         playerController = FindObjectOfType<PlayerController>();
         base.Start();

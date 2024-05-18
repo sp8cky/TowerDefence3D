@@ -19,7 +19,7 @@ public class Spawner : MonoBehaviour {
             yield return new WaitForSeconds(spawnInterval);
         }
     }
-
+    
     void SpawnEnemy() {
         int randomIndex = Random.Range(0, enemyPrefabs.Count);
         GameObject randomPrefab = enemyPrefabs[randomIndex];

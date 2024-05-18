@@ -1316,7 +1316,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 620416551}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1750102307}
+        m_TargetAssemblyTypeName: UIManager, Assembly-CSharp
+        m_MethodName: SelectTowerBasic
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &620416551
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1828,8 +1840,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   enemyPrefabs:
-  - {fileID: 4031607220543272792, guid: 7e025ab29056a28459be96b9de53e824, type: 3}
-  - {fileID: 5510172901904363179, guid: 74e2e8f33d7e77f46a44fd7eb9ec2abc, type: 3}
+  - {fileID: 2679539485254092038, guid: 147608f7b8ba0c44faface82377724cc, type: 3}
+  - {fileID: 6125518229545187502, guid: 4b6a31d88b88d92438c1a7be613d110c, type: 3}
+  - {fileID: 1224869881580500036, guid: 38b3bf791ef9f3d4f84ad1b3e2637280, type: 3}
+  - {fileID: 4529331010198702402, guid: 7e025ab29056a28459be96b9de53e824, type: 3}
   spawnInterval: 2
 --- !u!65 &1018376760
 BoxCollider:
@@ -3614,6 +3628,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a8ee5a5e2549a9b4db507584797d4969, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  towerBasic: {fileID: 5099716220147976002, guid: 124f8ca488386ab438e651eacdfdd0e9, type: 3}
   scoreText: {fileID: 1076905565}
   highScoreText: {fileID: 200788154}
   playerHealthText: {fileID: 2020138982}
@@ -3621,6 +3636,7 @@ MonoBehaviour:
   roundText: {fileID: 313360168}
   stateText: {fileID: 1100361769}
   timerText: {fileID: 1724947206}
+  placementPreviewMaterial: {fileID: 2100000, guid: ed35fc7537f580a4085a197f31f6bc01, type: 2}
 --- !u!1 &1830832188
 GameObject:
   m_ObjectHideFlags: 0

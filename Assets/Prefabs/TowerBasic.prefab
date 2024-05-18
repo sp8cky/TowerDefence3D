@@ -780,7 +780,7 @@ GameObject:
   - component: {fileID: 2548530255038419242}
   - component: {fileID: 2340811493264098390}
   m_Layer: 0
-  m_Name: Tower
+  m_Name: TowerBasic
   m_TagString: Tower
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
