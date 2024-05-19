@@ -78,7 +78,7 @@ public class GameManager : MonoBehaviour {
         SceneManager.LoadScene("GameOver");
     }
 
-    public void StartNextRound() { // TODO: space triggers at the beginning the ready button in unity
+    public void StartNextRound() { 
         Debug.Log("Start next round");
         
         if (currentState == GameState.Preparation) { // ATTACK
@@ -86,7 +86,7 @@ public class GameManager : MonoBehaviour {
             UIManager.instance.UpdateGameState("Attack");
 
             // start timer, enemy spawn and tower 
-            UIManager.instance.StartTimer(10f); 
+            UIManager.instance.StartTimer(100f); 
             enemySpawner.StartEnemySpawn();
             towerController.Update();
             cameraSwitcher.SwitchView();

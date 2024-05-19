@@ -16,7 +16,7 @@ public class UIManager : MonoBehaviour {
     public TMP_Text roundText;
     public TMP_Text stateText;
     public TMP_Text timerText;
-    private float currentTimer = 10f;
+    private float currentTimer = 100f;
     private bool isTimerRunning = false; 
     private bool isBuildUIOpen = false;
     private bool isPlayerUIOpen = true;
@@ -52,9 +52,8 @@ public class UIManager : MonoBehaviour {
             currentTimer -= Time.deltaTime;
             UpdateTimerText(currentTimer);
         }
-        if (isPlacementMode) {
-            UpdatePlacementPreview();
-        }
+        
+        
     }
 
     public void UpdateScore(int score) { scoreText.text = "Score: " + score.ToString(); }
@@ -77,12 +76,13 @@ public class UIManager : MonoBehaviour {
 
     // start timer
     public void StartTimer(float duration) {
+        Debug.Log("Timer started" + currentTimer.ToString());
         currentTimer = duration;
         isTimerRunning = true;
     }
     public void SelectTowerBasic() {
         Debug.Log("Selected Tower: TowerBasic");
-        StartPlacementPreview();
+        
     }
 
     // toggles both UIs
@@ -92,7 +92,7 @@ public class UIManager : MonoBehaviour {
             isPlayerUIOpen = true;
             buildUI.SetActive(false);
             ToggleUIComponents("Infos", true);
-            StopPlacementPreview(); // Stop placement preview when closing build UI
+            
         } else if (isPlayerUIOpen) {
             isBuildUIOpen = true;
             isPlayerUIOpen = false;
@@ -110,51 +110,7 @@ public class UIManager : MonoBehaviour {
             Debug.LogError("objectsToHide nicht gefunden!");
         }
     }
-    public void StartPlacementPreview() {
-        isPlacementMode = true;
-        buildUI.SetActive(false);
-        ToggleCursorVisibility(true);
-    }
-
-    public void StopPlacementPreview() {
-        isPlacementMode = false;
-        buildUI.SetActive(true);
-        Destroy(placementPreviewCube);
-        //ToggleCursorVisibility(false);
-    }
-
-    // TODO: fix exact placement of the preview cube
-    void UpdatePlacementPreview() {
-        // Mausposition in der Game View erhalten
-        Vector3 mousePosition = Input.mousePosition;
-        
-        // Mausposition auf den Boden der Game View projizieren
-        Ray ray = Camera.main.ScreenPointToRay(mousePosition);
-        Plane groundPlane = new Plane(Vector3.up, Vector3.zero);
-        float rayDistance;
-        if (groundPlane.Raycast(ray, out rayDistance)) {
-            Vector3 groundPoint = ray.GetPoint(rayDistance);
-            
-            // Einen Raycast senkrecht zum Boden von der projizierten Mausposition aus starten
-            Ray groundRay = new Ray(groundPoint + Vector3.up * 100f, Vector3.down);
-            
-            // Cubes färben basierend auf dem getroffenen Punkt
-            RaycastHit hit;
-            if (Physics.Raycast(groundRay, out hit, Mathf.Infinity)) {
-                if (hit.collider.CompareTag("Ground")) {
-                    Vector3Int gridPosition = Vector3Int.RoundToInt(hit.point);
-                    if (placementPreviewCube == null) {
-                        placementPreviewCube = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                        placementPreviewCube.GetComponent<Renderer>().material = placementPreviewMaterial;
-                    }
-                    placementPreviewCube.transform.position = gridPosition;
-                }
-            }
-        }
-    }
-
-    void ToggleCursorVisibility(bool isVisible) {
-        Cursor.visible = isVisible;
-        Cursor.lockState = isVisible ? CursorLockMode.None : CursorLockMode.Locked;
-    }
 }
+
+
+    

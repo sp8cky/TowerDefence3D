@@ -27,10 +27,10 @@ public class EnemyShooting : EnemyController {
         }
     }
 
-    IEnumerator KeepTargetDirection(EnemyBullet bullet) {
+    IEnumerator KeepTargetDirection(EnemyBullet bullet) { //TODO: change targeting player to destroy bullet after time and check collision
         yield return new WaitForSeconds(bulletTargetDuration);
-        bullet.StopTargetingPlayer(); // stop targeting the player after the duration
-        bullet.ChangeToStraightBullet();
+        //bullet.StopTargetingPlayer(); // stop targeting the player after the duration
+        //bullet.ChangeToStraightBullet();
     }
 
     void Shoot() {

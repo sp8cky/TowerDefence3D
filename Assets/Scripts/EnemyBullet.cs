@@ -31,7 +31,7 @@ public class EnemyBullet : MonoBehaviour {
             transform.position = Vector3.MoveTowards(transform.position, target.position, bulletSpeed * Time.deltaTime);
             
             targetingTimer += Time.deltaTime; // Update targeting timer
-            if (targetingTimer >= targetingDuration) StopTargetingPlayer();
+            //if (targetingTimer >= targetingDuration) StopTargetingPlayer();
         } else if (isStraightBullet) {
             // Move the bullet forward without targeting player
             transform.Translate(Vector3.forward * bulletSpeed * Time.deltaTime);
@@ -44,6 +44,7 @@ public class EnemyBullet : MonoBehaviour {
 
     void OnCollisionEnter(Collision collision) {
         if (collision.gameObject.CompareTag("Player")) {
+            Debug.Log("Player hit");
             target.GetComponent<PlayerController>().TakeDamage(damage);
             Destroy(gameObject);
         }
