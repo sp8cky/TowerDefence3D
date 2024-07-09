@@ -10,9 +10,6 @@ public class PlayerController : MonoBehaviour {
 
     void Start() {
         rb = GetComponent<Rigidbody>();
-        // Deaktiviere das Einfrieren der Rotation des Rigidbody, damit sich der Spieler umsehen kann
-        //rb.freezeRotation = true;
-        health = GameManager.instance.GetPlayerHealth();
     }
 
     void Update() {
@@ -57,8 +54,5 @@ public class PlayerController : MonoBehaviour {
         if (Physics.Raycast(transform.position, Vector3.down, 1.1f)) rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
     }
 
-    public void TakeDamage(int damage) {
-        health -= damage;
-        GameManager.instance.UpdatePlayerHealth(health);
-    }
+    
 }

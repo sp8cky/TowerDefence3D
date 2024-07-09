@@ -4,57 +4,56 @@ using UnityEngine;
 using UnityEngine.AI;
 
 public class EnemyController : MonoBehaviour {
-    protected GenerateCubes generateCubes;
-    protected int currentWaypointIndex = 0;
-    protected NavMeshAgent agent;
-    protected int enemyScore = 1;
-    protected int enemyHealth = 1;
+    private Transform spawnPoint;
+    private Transform basePoint;
+    private NavMeshAgent navMeshAgent;
 
-    protected virtual void Start() {
-        generateCubes = FindObjectOfType<GenerateCubes>(); 
-        agent = GetComponent<NavMeshAgent>();
-        agent.updateRotation = false; // Prevent NavMeshAgent from automatically rotating the agent
-        SetDestinationToNextWaypoint();
+    void Start() {
+        navMeshAgent = GetComponent<NavMeshAgent>();
+        GameObject spawnObject = GameObject.Find("Spawn");
+        GameObject baseObject = GameObject.Find("Base");
+        
+        // set positions
+        spawnPoint = spawnObject.transform;
+        basePoint = baseObject.transform;
+
+        if (navMeshAgent == null) {
+            Debug.LogError("NavMeshAgent component not found on this GameObject");
+            return;
+        }
+
+        if (spawnPoint == null || basePoint == null) {
+            Debug.LogError("Spawn or Base object not found in the scene.");
+            return;
+        }
+
+        if (navMeshAgent == null) {
+            Debug.LogError("NavMeshAgent component not found on this GameObject.");
+            return;
+        }
+
+        // set destination
+        SetDestination(basePoint.position);
     }
 
-    protected virtual void Update() {
-        // Check if the agent has reached the current waypoint
-        if (agent.remainingDistance <= agent.stoppingDistance && !agent.pathPending) {
-            // Move to the next waypoint
-            currentWaypointIndex++;
-            if (currentWaypointIndex < generateCubes.waypoints.Length) {
-                SetDestinationToNextWaypoint();
-            } else {
-                // Reached the last waypoint (Base), destroy the enemy
-                Debug.Log("Enemy reached Base.");
-                GameManager.instance.EnemyReachedBase(enemyScore);
-                Destroy(gameObject);
-            }
+
+    void Update() {
+        // Check if the agent has reached the base
+        if (!navMeshAgent.pathPending && navMeshAgent.remainingDistance <= navMeshAgent.stoppingDistance) {
+            // Enemy has reached the base
+            OnReachBase();
         }
-        if (currentWaypointIndex < generateCubes.waypoints.Length) RotateTowards(generateCubes.waypoints[currentWaypointIndex].position);
+    }
     
+    // set destination for the enemy
+    private void SetDestination(Vector3 destination) {
+        navMeshAgent.SetDestination(destination);
     }
 
-    protected virtual void SetDestinationToNextWaypoint() {
-        // Check if there are waypoints remaining
-        if (currentWaypointIndex < generateCubes.waypoints.Length) {
-            agent.SetDestination(generateCubes.waypoints[currentWaypointIndex].position);
-        }
+    // enemy reached the base
+    private void OnReachBase() {
+        Debug.Log("Enemy reached the base!");
+        Destroy(gameObject);
     }
-
-    // TODO: Fix wrong look rotation of the enemy
-    protected virtual void RotateTowards(Vector3 target) {
-        Vector3 direction = (target - transform.position).normalized;
-        Quaternion lookRotation = Quaternion.LookRotation(direction);
-        transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 5f);
-    }
-
-    public void TakeDamage(int damage) {
-        enemyHealth -= damage;
-        if (enemyHealth <= 0) {
-            Destroy(gameObject);
-            Debug.Log("Enemy destroyed.");
-            GameManager.instance.AddScore(enemyScore);
-        }
-    }
+    
 }
