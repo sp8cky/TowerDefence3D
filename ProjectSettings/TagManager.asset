@@ -6,10 +6,7 @@ TagManager:
   tags:
   - Spawn
   - Base
-  - Path
-  - Ground
   - Enemy
-  - Tower
   layers:
   - Default
   - TransparentFX
@@ -17,7 +14,7 @@ TagManager:
   - Enemies
   - Water
   - UI
-  - 
+  - Obstacles
   - 
   - 
   - 

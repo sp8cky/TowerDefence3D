@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
+// enemy class with navmesh pathfinding
 public class EnemyController : MonoBehaviour {
     private Transform spawnPoint;
     private Transform basePoint;
@@ -52,7 +53,7 @@ public class EnemyController : MonoBehaviour {
 
     // enemy reached the base
     private void OnReachBase() {
-        Debug.Log("Enemy reached the base!");
+        //Debug.Log("Enemy reached the base!");
         Destroy(gameObject);
     }
     
