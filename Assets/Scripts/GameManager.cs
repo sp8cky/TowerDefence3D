@@ -8,6 +8,7 @@ public class GameManager : MonoBehaviour {
     public static GameManager instance;
     private GameState currentState;
     private Spawner enemySpawner;
+    private InitializeGame initializeGame;
     private int round;
     private float timer = 10f;
     private float currentTimer;
@@ -31,13 +32,15 @@ public class GameManager : MonoBehaviour {
     public void Start() {
         // find objects
         enemySpawner = FindObjectOfType<Spawner>();
-        if (enemySpawner == null) Debug.LogWarning("Scripts in GameManager not found.");
-
+        initializeGame = FindObjectOfType<InitializeGame>();    
+        if (enemySpawner == null || initializeGame == null) Debug.LogWarning("Scripts in GameManager not found.");
 
         // initialize the game
         currentTimer = timer;
         round = 1;
         currentState = GameState.PREPARATION;
+        int randomSpawnCount = IncreaseSpawnCount();
+        initializeGame.ActivateSpawns(randomSpawnCount);
         UIManager.instance.UpdateGameState("Preparation");
         UIManager.instance.UpdateRound(round);
         UIManager.instance.UpdateTimerText(currentTimer); 
@@ -63,6 +66,8 @@ public class GameManager : MonoBehaviour {
             currentState = GameState.PREPARATION;
             isTimerRunning = false;
             round++; 
+            int randomSpawnCount = IncreaseSpawnCount();
+            initializeGame.ActivateSpawns(randomSpawnCount);
             enemySpawner.StopEnemySpawn();
             UIManager.instance.UpdateRound(round);
             UIManager.instance.UpdateGameState("Preparation"); 
@@ -74,6 +79,15 @@ public class GameManager : MonoBehaviour {
             UIManager.instance.UpdateGameState("Attack"); 
         }
     }
+
+    // increases spawn count for each round
+    private int IncreaseSpawnCount() { 
+        if (round < initializeGame.GetSpawnList().Count) return round;
+        return initializeGame.GetSpawnList().Count; 
+    }
+
+    // generates a random spawn count each round
+    private int GenerateRandomSpawnCount() { return Random.Range(1, initializeGame.GetSpawnList().Count - 1); }
 
 
     // Getter and Setter ///////////////////////////////////////////
