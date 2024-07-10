@@ -3,98 +3,166 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
-// enemy class with A* pathfinding
 public class EnemyStarSearch : MonoBehaviour {
-    private class Node {
+
+    // Node class for A* algorithm
+    private class PathNode : IComparer<PathNode> {
         public Vector3 position;
-        public Node parent;
-        public float gCost;
-        public float hCost;
+        public float fCost; // total cost (gCost + hCost)
+        public float gCost; // cost from start to current node
+        public float hCost; // heuristic cost from current node to destination
+        public PathNode parent;
 
-        public float FCost { get { return gCost + hCost; } }
-
-        public Node(Vector3 pos, float g, float h, Node par = null) {
+        public PathNode(Vector3 pos, float h, PathNode par) {
             position = pos;
-            gCost = g;
             hCost = h;
             parent = par;
+            gCost = 0;
+            fCost = gCost + hCost;
+        }
+
+        public int Compare(PathNode x, PathNode y) {
+            if (x.fCost < y.fCost)
+                return -1;
+            else if (x.fCost > y.fCost)
+                return 1;
+            else
+                return 0;
         }
     }
 
-    private List<Vector3> FindPath(Vector3 startPos, Vector3 targetPos) {
-        List<Node> openSet = new List<Node>();
-        HashSet<Vector3> closedSet = new HashSet<Vector3>();
 
-        Node startNode = new Node(startPos, 0, CalculateDistance(startPos, targetPos));
-        openSet.Add(startNode);
+    private Transform basePoint;
+    private NavMeshAgent navMeshAgent;
 
-        while (openSet.Count > 0) {
-            Node currentNode = openSet[0];
-            for (int i = 1; i < openSet.Count; i++) {
-                if (openSet[i].FCost < currentNode.FCost || (openSet[i].FCost == currentNode.FCost && openSet[i].hCost < currentNode.hCost)) {
-                    currentNode = openSet[i];
+    void Start() {
+        navMeshAgent = GetComponent<NavMeshAgent>();
+        GameObject baseObject = GameObject.Find("Base");
+
+        // set base point
+        basePoint = baseObject.transform;
+
+        if (navMeshAgent == null) {
+            Debug.LogError("NavMeshAgent component not found on this GameObject");
+            return;
+        }
+
+        if (basePoint == null) {
+            Debug.LogError("Base object not found in the scene.");
+            return;
+        }
+
+        // find path using A* algorithm
+        FindPathAStar(basePoint.position);
+    }
+
+    void Update() {
+        // Check if the agent has reached the base
+        if (!navMeshAgent.pathPending && navMeshAgent.remainingDistance <= navMeshAgent.stoppingDistance) {
+            // Enemy has reached the base
+            OnReachBase();
+        }
+    }
+
+    // A* algorithm to find path to destination
+    private void FindPathAStar(Vector3 destination) {
+        // Initialize priority queue for open nodes
+        PriorityQueue<PathNode> openNodes = new PriorityQueue<PathNode>();
+        HashSet<PathNode> closedNodes = new HashSet<PathNode>();
+
+        // Start node is the current position of the enemy
+        PathNode startNode = new PathNode(transform.position, CalculateHeuristic(transform.position, destination), null);
+        openNodes.Enqueue(startNode);
+
+        while (openNodes.Count > 0) {
+            // Dequeue the node with the lowest cost
+            PathNode currentNode = openNodes.Dequeue();
+
+            // If the current node is the destination, reconstruct and set path
+            if (Vector3.Distance(currentNode.position, destination) < navMeshAgent.stoppingDistance) {
+                SetPath(currentNode);
+                return;
+            }
+
+            // Add current node to closed list
+            closedNodes.Add(currentNode);
+
+            // Get neighbors (using NavMesh to find walkable positions)
+            List<Vector3> neighbors = GetWalkableNeighbors(currentNode.position);
+            
+            foreach (Vector3 neighbor in neighbors) {
+                // Create a node for the neighbor
+                PathNode neighborNode = new PathNode(neighbor, CalculateHeuristic(neighbor, destination), currentNode);
+
+                // Skip if neighbor is in closed list
+                if (closedNodes.Contains(neighborNode))
+                    continue;
+
+                // Calculate tentative g cost
+                float tentativeGCost = currentNode.gCost + Vector3.Distance(currentNode.position, neighbor);
+
+                // Check if neighbor is not in open list or has a lower g cost
+                if (!openNodes.Contains(neighborNode) || tentativeGCost < neighborNode.gCost) {
+                    // Update g and f cost
+                    neighborNode.gCost = tentativeGCost;
+                    neighborNode.parent = currentNode;
+
+                    // Enqueue or update the neighbor node in the open list
+                    if (!openNodes.Contains(neighborNode))
+                        openNodes.Enqueue(neighborNode);
+                    else
+                        openNodes.UpdatePriority(neighborNode);
                 }
             }
-
-            openSet.Remove(currentNode);
-            closedSet.Add(currentNode.position);
-
-            if (currentNode.position == targetPos) {
-                return RetracePath(startNode, currentNode);
-            }
-
-            foreach (Vector3 neighborPos in GetNeighbors(currentNode.position)) {
-                if (closedSet.Contains(neighborPos)) continue;
-
-                float newMovementCostToNeighbor = currentNode.gCost + CalculateDistance(currentNode.position, neighborPos);
-                Node neighborNode = new Node(neighborPos, newMovementCostToNeighbor, CalculateDistance(neighborPos, targetPos), currentNode);
-
-                if (openSet.Exists(node => node.position == neighborPos && node.FCost < neighborNode.FCost)) continue;
-
-                openSet.Add(neighborNode);
-            }
         }
 
-        return null;
+        // If no path found, log error
+        Debug.LogError("No path found to destination.");
     }
 
-    private List<Vector3> RetracePath(Node startNode, Node endNode) {
-        List<Vector3> path = new List<Vector3>();
-        Node currentNode = endNode;
-
-        while (currentNode != startNode) {
-            path.Add(currentNode.position);
-            currentNode = currentNode.parent;
-        }
-
-        path.Reverse();
-        return path;
+    // Calculate heuristic (using Euclidean distance)
+    private float CalculateHeuristic(Vector3 from, Vector3 to) {
+        return Vector3.Distance(from, to);
     }
 
-    private float CalculateDistance(Vector3 a, Vector3 b) {
-        return Vector3.Distance(a, b);
-    }
-    private List<Vector3> GetNeighbors(Vector3 center) {
+    // Get walkable neighbors using NavMesh
+    private List<Vector3> GetWalkableNeighbors(Vector3 position) {
+        NavMeshPath navMeshPath = new NavMeshPath();
         List<Vector3> neighbors = new List<Vector3>();
 
-        NavMeshHit hit;
-        if (NavMesh.SamplePosition(center, out hit, 1f, NavMesh.AllAreas)) {
-            Vector3[] directions = new Vector3[] {
-                Vector3.forward,
-                Vector3.back,
-                Vector3.left,
-                Vector3.right
-            };
+        NavMesh.SamplePosition(position, out NavMeshHit hit, 5f, NavMesh.AllAreas);
+        position = hit.position;
 
-            foreach (Vector3 dir in directions) {
-                Vector3 neighborPos = hit.position + dir;
-                NavMeshPath path = new NavMeshPath();
-                if (NavMesh.CalculatePath(center, neighborPos, NavMesh.AllAreas, path)) {
-                    neighbors.Add(neighborPos);
-                }
-            }
+        if (NavMesh.CalculatePath(position, basePoint.position, NavMesh.AllAreas, navMeshPath)) {
+            foreach (Vector3 corner in navMeshPath.corners) neighbors.Add(corner);
         }
 
         return neighbors;
     }
+
+    // Set path to destination
+    private void SetPath(PathNode targetNode) {
+        List<Vector3> path = new List<Vector3>();
+
+        // Trace back the path from target node to start node
+        PathNode currentNode = targetNode;
+        while (currentNode != null) {
+            path.Add(currentNode.position);
+            currentNode = currentNode.parent;
+        }
+
+        path.Reverse(); // Reverse the path to start from the beginning
+        NavMeshPath navMeshPath = new NavMeshPath();
+        navMeshAgent.CalculatePath(path[path.Count - 1], navMeshPath);
+        navMeshAgent.path = navMeshPath;
+    }
+
+    // enemy reached the base
+    private void OnReachBase() {
+        Debug.Log("Enemy reached the base!");
+        Destroy(gameObject);
+    }
+
+
+    
 }
