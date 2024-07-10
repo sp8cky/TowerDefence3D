@@ -7,7 +7,7 @@ using UnityEditor;
 public class Spawner : MonoBehaviour {
     private List<GameObject> enemyPrefabs = new List<GameObject>();
     private bool isSpawning = false;
-    public float spawnInterval = 3f;
+    public float spawnInterval = 0.2f;
     private InitializeGame initializeGame;
 
     void Start() {

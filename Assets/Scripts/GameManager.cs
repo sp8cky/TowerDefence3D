@@ -10,9 +10,10 @@ public class GameManager : MonoBehaviour {
     private Spawner enemySpawner;
     private InitializeGame initializeGame;
     private int round;
-    private float timer = 10f;
+    private float timer = 20f;
     private float currentTimer;
     private bool isTimerRunning = false;
+    private float score;
 
     public enum GameState {
         PREPARATION,
@@ -43,16 +44,16 @@ public class GameManager : MonoBehaviour {
         initializeGame.ActivateSpawns(randomSpawnCount);
         UIManager.instance.UpdateGameState("Preparation");
         UIManager.instance.UpdateRound(round);
-        UIManager.instance.UpdateTimerText(currentTimer); 
+        UIManager.instance.UpdateTimer(currentTimer); 
     }
 
     private void Update() {
         if (currentState == GameState.ATTACK && isTimerRunning) {
             currentTimer -= Time.deltaTime;
-            UIManager.instance.UpdateTimerText(currentTimer);
+            UIManager.instance.UpdateTimer(currentTimer);
             if (currentTimer <= 0) {
                 currentTimer = 0;
-                UIManager.instance.UpdateTimerText(currentTimer);
+                UIManager.instance.UpdateTimer(currentTimer);
                 isTimerRunning = false;
                 ChangeGameState();
             }
@@ -88,6 +89,12 @@ public class GameManager : MonoBehaviour {
 
     // generates a random spawn count each round
     private int GenerateRandomSpawnCount() { return Random.Range(1, initializeGame.GetSpawnList().Count - 1); }
+
+    // SCORES ///////////////////////////////////////////
+    public void AddScore(float score) { 
+        this.score += score; 
+        UIManager.instance.UpdateScore(this.score);
+    }
 
 
     // Getter and Setter ///////////////////////////////////////////

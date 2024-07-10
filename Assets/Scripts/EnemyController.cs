@@ -7,6 +7,8 @@ using UnityEngine.AI;
 public class EnemyController : MonoBehaviour {
     private Transform basePoint;
     private NavMeshAgent navMeshAgent;
+    private float health = 10f;
+    private float enemyScore;
 
     void Start() {
         navMeshAgent = GetComponent<NavMeshAgent>();
@@ -27,6 +29,7 @@ public class EnemyController : MonoBehaviour {
 
         // set destination
         SetDestination(basePoint.position);
+        enemyScore = health;
     }
 
     void Update() {
@@ -46,5 +49,13 @@ public class EnemyController : MonoBehaviour {
     private void OnReachBase() {
         //Debug.Log("Enemy reached the base!");
         Destroy(gameObject);
+    }
+
+    public void TakeDamage(float damage) {
+        health -= damage;
+        if (health <= 0) {
+            GameManager.instance.AddScore(enemyScore);
+            Destroy(gameObject);
+        }
     }
 }
