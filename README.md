@@ -33,11 +33,9 @@ This project is a Tower Defence implementation in 3D using Unity. It follows the
 - Compatibility: The game is designed for 3D gameplay and is compatible with desktop platforms.
 
 ### Installation Steps
+Clone the repository and add it to Unity Hub
 ```bash
-# Clone the repository
 git clone https://github.com/sp8cky/Space-Survivor
-
-# Add your directory to Unity Hub
 ```
 
 ### Customization Options:
